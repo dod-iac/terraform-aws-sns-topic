@@ -1,3 +1,4 @@
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Usage
 
 Creates an AWS SNS Topic that allows publishing from CloudWatch Events.
@@ -56,20 +57,34 @@ This project constitutes a work of the United States Government and is not subje
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12 |
-| aws | >= 2.55.0 |
+| terraform | >= 0.13 |
+| aws | ~> 3.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 2.55.0 |
+| aws | ~> 3.0 |
+
+## Modules
+
+No Modules.
+
+## Resources
+
+| Name |
+|------|
+| [aws_caller_identity](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) |
+| [aws_iam_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
+| [aws_partition](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) |
+| [aws_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) |
+| [aws_sns_topic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| access\_policy\_document | The contents of the access policy attached to the SNS topic.  If not defined, then generates a policy using the "allow\_\*" variables. | `string` | `""` | no |
+| access\_policy\_document | The contents of the access policy attached to the SNS topic.  If not defined, then generates a policy using the "allow\_*" variables. | `string` | `""` | no |
 | allow\_cloudwatch\_events | Allow CloudWatch events to publish to the SNS topic. | `bool` | `true` | no |
 | kms\_master\_key\_id | The ID of an AWS-managed customer master key (CMK) for Amazon SNS or a custom CMK. | `string` | `null` | no |
 | lambda\_failure\_feedback\_role\_arn | IAM role for failure feedback | `string` | `null` | no |
@@ -84,4 +99,4 @@ This project constitutes a work of the United States Government and is not subje
 |------|-------------|
 | arn | The ARN of the SNS topic. |
 | name | The name of the SNS topic. |
-
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
