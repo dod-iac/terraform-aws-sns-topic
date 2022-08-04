@@ -46,9 +46,9 @@
  *
  * ## Terraform Version
  *
- * Terraform 0.12. Pin module version to ~> 1.0.0 . Submit pull-requests to master branch.
+ * Terraform 0.13. Pin module version to ~> 1.0.0 . Submit pull-requests to main branch.
  *
- * Terraform 0.11 is not supported.
+ * Terraform 0.11 and 0.12 are not supported.
  *
  * ## License
  *
@@ -62,31 +62,57 @@ data "aws_region" "current" {}
 data "aws_partition" "current" {}
 
 data "aws_iam_policy_document" "access_policy" {
-  statement {
-    sid = "AllowCloudWatchEventsPublish"
-    actions = [
-      "sns:Publish"
-    ]
-    effect = var.allow_cloudwatch_events ? "Allow" : "Deny"
-    principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+  count = var.allow_cloudwatch_events || var.allow_snowfamily ? 1 : 0
+  dynamic "statement" {
+    for_each = var.allow_cloudwatch_events ? [1] : []
+    content {
+      sid = "AllowCloudWatchEventsPublish"
+      actions = [
+        "sns:Publish"
+      ]
+      effect = "Allow"
+      principals {
+        type        = "Service"
+        identifiers = ["events.amazonaws.com"]
+      }
+      resources = [
+        format("arn:%s:sns:%s:%s:%s",
+          data.aws_partition.current.partition,
+          data.aws_region.current.name,
+          data.aws_caller_identity.current.account_id,
+          var.name
+        )
+      ]
     }
-    resources = [
-      format("arn:%s:sns:%s:%s:%s",
-        data.aws_partition.current.partition,
-        data.aws_region.current.name,
-        data.aws_caller_identity.current.account_id,
-        var.name
-      )
-    ]
+  }
+  dynamic "statement" {
+    for_each = var.allow_snowfamily ? [1] : []
+    content {
+      sid = "AllowSnowFamilyPublish"
+      actions = [
+        "sns:Publish"
+      ]
+      effect = "Allow"
+      principals {
+        type        = "Service"
+        identifiers = ["importexport.amazonaws.com"]
+      }
+      resources = [
+        format("arn:%s:sns:%s:%s:%s",
+          data.aws_partition.current.partition,
+          data.aws_region.current.name,
+          data.aws_caller_identity.current.account_id,
+          var.name
+        )
+      ]
+    }
   }
 }
 
 resource "aws_sns_topic" "main" {
   name                                = var.name
   kms_master_key_id                   = var.kms_master_key_id
-  policy                              = length(var.access_policy_document) > 0 ? var.access_policy_document : data.aws_iam_policy_document.access_policy.json
+  policy                              = length(var.access_policy_document) > 0 ? var.access_policy_document : (var.allow_cloudwatch_events || var.allow_snowfamily ? data.aws_iam_policy_document.access_policy.0.json : null)
   lambda_success_feedback_role_arn    = var.lambda_success_feedback_role_arn
   lambda_failure_feedback_role_arn    = var.lambda_failure_feedback_role_arn
   lambda_success_feedback_sample_rate = var.lambda_success_feedback_sample_rate
