@@ -1,6 +1,12 @@
 variable "allow_cloudwatch_events" {
   type        = bool
-  description = "Allow CloudWatch events to publish to the SNS topic."
+  description = "Allow CloudWatch events (events.amazonaws.com) to publish to the SNS topic."
+  default     = true
+}
+
+variable "allow_snowfamily" {
+  type        = bool
+  description = "Allow Snow Family (importexport.amazonaws.com) to publish to the SNS topic."
   default     = true
 }
 
